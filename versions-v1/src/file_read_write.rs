@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use crate::version::Version;
 
 const PATH: &str = "versions.json";
@@ -33,4 +33,32 @@ pub fn read() -> Result<Vec<Version>, Box<dyn Error>> {
     };
 
     Ok(versions_from_file)
+}
+
+pub fn write(versions: &Vec<Version>) -> Result<(), Box<dyn Error>> {
+    let text_to_write = match serde_json::to_string_pretty(versions) {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("EXPLOSION parsing vector to string: {:?}", e);
+            return Err(e.into())
+        }
+    };
+
+    let mut file_to_write = match File::create(PATH) {
+        Ok(file) => file,
+        Err(e) => {
+            eprintln!("EXPLOSION creating file: {:?}", e);
+            return Err(e.into())
+        }
+    };
+
+    match file_to_write.write_all(text_to_write.as_bytes()) {
+        Ok(_) => (),
+        Err(e) => {
+            eprintln!("EXPLOSION writing to file: {:?}", e);
+            return Err(e.into())
+        }
+    };
+
+    Ok(())
 }
