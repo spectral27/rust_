@@ -1,40 +1,24 @@
 mod version;
-mod file_read_write;
+mod versions_read_write;
 mod id_generator;
+mod versions_repository;
 
-use std::fs::File;
 use std::io::{Read, Write};
-use version::Version;
+use crate::version::Version;
 
 fn main() {
-    // let mut v = Version::new();
-    // v.id = id_generator::get_id();
-    // v.name = "Rust".to_string();
-    // v.version = "1.71.0".to_string();
-    // v.version_score = v.get_score();
-    // v.release_date = "2023-07-13".to_string();
-    //
-    // let mut versions_vector = Vec::new();
-    // versions_vector.push(v);
-    //
-    // match file_read_write::write(&versions_vector) {
-    //     Ok(_) => (),
-    //     Err(e) => panic!("EXPLOSION! {:?}", e)
-    // }
-    //
-    // let string_to_write = serde_json::to_string_pretty(&versions_vector).unwrap();
-    // File::create(path).unwrap().write_all(string_to_write.as_bytes()).unwrap();
-    //
-    // File::open("versions.json").unwrap().read_to_string(&mut text_from_file).unwrap();
 
-    let versions_from_file = match file_read_write::read() {
-        Ok(versions) => versions,
-        Err(e) => panic!("ERROR: {:?}", e)
-    };
+    let mut rust170 = Version::new();
+    rust170.name = "Rust".to_string();
+    rust170.version = "1.70.0".to_string();
+    rust170.release_date = "2023-06-01".to_string();
 
-    for version in versions_from_file {
-        println!("{}", version.id);
-        println!("{:?}", version);
+    versions_repository::insert_version(rust170);
+
+    let versions = versions_repository::select_all_versions();
+
+    for version in versions {
+        println!("{} {} {} {}", version.id, version.name, version.version, version.release_date);
     }
 
 }

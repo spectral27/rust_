@@ -6,6 +6,9 @@ use crate::version::Version;
 const PATH: &str = "versions.json";
 
 pub fn read() -> Result<Vec<Version>, Box<dyn Error>> {
+    // let mut text_from_file = String::new();
+    // File::open("versions.json").unwrap().read_to_string(&mut text_from_file).unwrap();
+
     let mut file_to_read = match File::open(PATH) {
         Ok(file) => file,
         Err(e) => {
@@ -36,6 +39,9 @@ pub fn read() -> Result<Vec<Version>, Box<dyn Error>> {
 }
 
 pub fn write(versions: &Vec<Version>) -> Result<(), Box<dyn Error>> {
+    // let string_to_write = serde_json::to_string_pretty(&versions_vector).unwrap();
+    // File::create(path).unwrap().write_all(string_to_write.as_bytes()).unwrap();
+
     let text_to_write = match serde_json::to_string_pretty(versions) {
         Ok(result) => result,
         Err(e) => {
