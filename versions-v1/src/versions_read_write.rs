@@ -28,11 +28,11 @@ pub fn read() -> Result<Vec<Version>, Box<dyn Error>> {
     Ok(versions_from_file)
 }
 
-pub fn write(versions: &Vec<Version>) -> Result<(), Box<dyn Error>> {
+pub fn write(versions: Vec<Version>) -> Result<(), Box<dyn Error>> {
     // let string_to_write = serde_json::to_string_pretty(&versions_vector).unwrap();
     // File::create(path).unwrap().write_all(string_to_write.as_bytes()).unwrap();
 
-    let text_to_write = match serde_json::to_string_pretty(versions) {
+    let text_to_write = match serde_json::to_string_pretty(&versions) {
         Ok(result) => result,
         Err(e) => {
             eprintln!("EXPLOSION parsing vector to string: {:?}", e);
