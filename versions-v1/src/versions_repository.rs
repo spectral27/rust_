@@ -29,3 +29,32 @@ pub fn insert_version(mut version: Version) {
 pub fn select_all_versions() -> Vec<Version> {
     VersionsReadWrite::read().unwrap()
 }
+
+pub fn latest() -> Vec<Version> {
+    let versions = VersionsReadWrite::read().unwrap();
+
+    let mut names: Vec<String> = versions.clone()
+        .into_iter()
+        .map(|version| version.name.clone())
+        .collect();
+
+    names.sort();
+    names.dedup();
+
+    let mut latest: Vec<Version> = Vec::new();
+
+    for name in names {
+        let mut versions_by_name: Vec<Version> = versions.clone()
+            .into_iter()
+            .filter(|version| version.name == name)
+            .collect();
+
+        versions_by_name.sort_by(|a, b| a.version_score.cmp(&b.version_score).reverse());
+
+        let latest_version: Version = versions_by_name.remove(0);
+
+        latest.push(latest_version);
+    }
+
+    latest
+}

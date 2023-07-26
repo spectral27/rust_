@@ -20,6 +20,16 @@ impl Version {
         }
     }
 
+    pub fn new_with_data(name: String, version: String, release_date: String) -> Self {
+        Self {
+            id: String::new(),
+            name,
+            version,
+            version_score: 0,
+            release_date
+        }
+    }
+
     pub fn get_score(&self) -> i32 {
         let version_array = self.version.split(".");
         let mut result = 0;

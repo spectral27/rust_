@@ -8,14 +8,11 @@ use crate::version::Version;
 
 fn main() {
 
-    let mut rust170 = Version::new();
-    rust170.name = "Rust".to_string();
-    rust170.version = "1.70.0".to_string();
-    rust170.release_date = "2023-06-01".to_string();
+    let mut rust171 = Version::new_with_data("Rust".to_string(), "1.71.0".to_string(), "2023-07-13".to_string());
 
-    versions_repository::insert_version(rust170);
+    versions_repository::insert_version(rust171);
 
-    let versions = versions_repository::select_all_versions();
+    let versions = versions_repository::latest();
 
     for version in versions {
         println!("{} {} {} {}", version.id, version.name, version.version, version.release_date);
