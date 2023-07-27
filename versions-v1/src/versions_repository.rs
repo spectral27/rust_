@@ -1,11 +1,12 @@
+use std::any::Any;
 use uuid::Uuid;
 use crate::version::Version;
 use crate::versions_read_write as VersionsReadWrite;
 
-pub fn capitalize_first_letter(s: &mut str) {
-    if let Some(first_letter) = s.get_mut(0..1) {
-        first_letter.make_ascii_uppercase();
-    }
+pub fn capitalize_first_letter(s: &str) -> String {
+    let mut name_to_edit = s.to_lowercase();
+    name_to_edit.get_mut(0..1).unwrap().make_ascii_uppercase();
+    name_to_edit
 }
 
 pub fn get_id() -> String {
@@ -14,7 +15,7 @@ pub fn get_id() -> String {
 }
 
 pub fn insert_version(mut version: Version) {
-    capitalize_first_letter(version.name.as_mut());
+    version.name = capitalize_first_letter(&version.name);
 
     let mut versions = VersionsReadWrite::read().unwrap();
 
@@ -65,17 +66,50 @@ pub fn latest() -> Vec<Version> {
     latest
 }
 
-pub fn get_versions_by_name(name: &mut String) -> Vec<Version> {
-    capitalize_first_letter(name);
+pub fn get_versions_by_name(name: &str) -> Vec<Version> {
+    let name = capitalize_first_letter(name);
 
     let versions = VersionsReadWrite::read().unwrap();
 
     let mut versions_by_name: Vec<Version> = versions.iter()
-        .filter(|v| v.name == name.to_string())
+        .filter(|v| v.name == name)
         .map(|v| v.clone())
         .collect();
 
     versions_by_name.sort_by(|a, b| a.version_score.cmp(&b.version_score).reverse());
 
     versions_by_name
+}
+
+pub fn update_version(id: &str, updated_version: Version) {
+    let mut versions = select_all_versions();
+
+    let index = versions.iter()
+        .enumerate()
+        .find(|(_, v)| v.id == id)
+        .map(|(index, _)| index);
+
+    if index.is_some() {
+        let mut version_to_update = versions.remove(index.unwrap());
+
+        if updated_version.name.len() > 0 {
+            let name = capitalize_first_letter(&updated_version.name);
+            version_to_update.name = name;
+        }
+
+        if updated_version.version.len() > 0 {
+            version_to_update.version = updated_version.version;
+            version_to_update.version_score = version_to_update.get_score();
+        }
+
+        if updated_version.release_date.len() > 0 {
+            version_to_update.release_date = updated_version.release_date
+        }
+
+        versions.push(version_to_update);
+
+        VersionsReadWrite::write(versions).unwrap();
+    } else {
+        println!("Version with id {} not present.", id);
+    }
 }
