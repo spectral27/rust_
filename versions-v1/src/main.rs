@@ -7,12 +7,7 @@ use std::io::{Read, Write};
 use crate::version::Version;
 
 fn main() {
-
-    let mut rust171 = Version::new_with_data("Rust".to_string(), "1.71.0".to_string(), "2023-07-13".to_string());
-
-    versions_repository::insert_version(rust171);
-
-    let versions = versions_repository::latest();
+    let versions = versions_repository::get_versions_by_name(&mut String::from("rust"));
 
     for version in versions {
         println!("{} {} {} {}", version.id, version.name, version.version, version.release_date);

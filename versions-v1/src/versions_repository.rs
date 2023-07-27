@@ -2,12 +2,20 @@ use uuid::Uuid;
 use crate::version::Version;
 use crate::versions_read_write as VersionsReadWrite;
 
+pub fn capitalize_first_letter(s: &mut str) {
+    if let Some(first_letter) = s.get_mut(0..1) {
+        first_letter.make_ascii_uppercase();
+    }
+}
+
 pub fn get_id() -> String {
     let uuid = Uuid::new_v4().to_string().replace("-", "");
     uuid[0..16].to_string()
 }
 
 pub fn insert_version(mut version: Version) {
+    capitalize_first_letter(version.name.as_mut());
+
     let mut versions = VersionsReadWrite::read().unwrap();
 
     let same_version = versions.iter()
@@ -55,4 +63,19 @@ pub fn latest() -> Vec<Version> {
     }
 
     latest
+}
+
+pub fn get_versions_by_name(name: &mut String) -> Vec<Version> {
+    capitalize_first_letter(name);
+
+    let versions = VersionsReadWrite::read().unwrap();
+
+    let mut versions_by_name: Vec<Version> = versions.iter()
+        .filter(|v| v.name == name.to_string())
+        .map(|v| v.clone())
+        .collect();
+
+    versions_by_name.sort_by(|a, b| a.version_score.cmp(&b.version_score).reverse());
+
+    versions_by_name
 }
